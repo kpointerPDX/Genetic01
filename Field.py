@@ -1,19 +1,20 @@
 from math import floor
 import random
 
+
 class Field:
-    def __init__(self):
+    """def __init__(self):
         self.dims = 5
         self.cells = [['.']]
         self.obstacles = 3
         self.goalPosition = (self.dims-1, self.dims-1)
         self.build()
         self.unexplored = self.countUnexplored()
-
-    def __init__(self, dims, obstacles):
+    """
+    def __init__(self, dims=5, obstacles=3):
         self.dims = max(3, min(25, dims))
         self.cells = [['.']]
-        self.obstacles = max(0, min(obstacles, max(1, floor((dims-2)**2)/2)))
+        self.obstacles = max(0, min(obstacles, max(1, int(floor(((dims-2)**2)/2)))))
         self.goalPosition = (0, 0)
         self.build()
 
@@ -39,7 +40,7 @@ class Field:
                 if self.cells[randR][randC] == '.':
                     neighbors = 0
                     r = randR - 1
-                    c = randC - 1
+#                   c = randC - 1   # TODO: is this c declaration needed?
                     while neighbors < 2 and r <= randR + 1:
                         c = randC - 1
                         while neighbors < 2 and c <= randC + 1:
@@ -59,13 +60,13 @@ class Field:
 
     def validCoord(self, coord):
         checkCoord = self.getCoord(coord)
-        if checkCoord == None or checkCoord == "O":
+        if checkCoord is None or checkCoord == "O":
             return False
         else:
             return True
 
     def setExplored(self, coord):
-        pass
+        pass    # TODO: is setExplored still needed?
 
     def countUnexplored(self):
         count = 0

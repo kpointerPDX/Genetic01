@@ -1,5 +1,6 @@
 import random
 
+
 class AI:
     class Genome:
         class Gene:
@@ -11,17 +12,19 @@ class AI:
 
         class StrategyGene(Gene):
             strategyList = list(("random", "spin and move", "spiral", "grid"))
-
-            def __init__(self):
+            """def __init__(self):
                 super().__init__()
-                self.strategy = random.choice(self.strategyList)
+                self.strategy = random.choice(self.strategyList)"""
 
-            def __init__(self, stratGeneIn):
+            def __init__(self, strategyGeneIn=None):
                 super().__init__()
-                self.strategy = stratGeneIn.strategy
+                if strategyGeneIn is None:
+                    self.strategy = "random"
+                else:
+                    self.strategy = strategyGeneIn.strategy
 
         class InputGene(Gene):
-            def __init__(self):
+            """def __init__(self):
                 super().__init__()
                 self.connection = None
                 self.connectionWeight = 0
@@ -29,12 +32,20 @@ class AI:
             def __init__(self, outputGeneIn):
                 super().__init__()
                 self.connection = outputGeneIn
-                self.connectionWeight = random.uniform(-1.0, 1.0)
+                self.connectionWeight = random.uniform(-1.0, 1.0)"""
 
-            def __init__(self, geneIn):
+            def __init__(self, inputGeneIn=None, connectedGeneIn=None):
                 super().__init__()
-                self.connection = geneIn.connection
-                self.connectionWeight = geneIn.connectionWeight
+                if inputGeneIn is not None:
+                    self.value = inputGeneIn.value
+                    self.connection = inputGeneIn.connection
+                    self.connectionWeight = inputGeneIn.connectionWeight
+                elif connectedGeneIn is not None:
+                    self.connection = connectedGeneIn
+                    self.connectionWeight = random.uniform(-1.0, 1.0)
+                else:
+                    self.connection = None
+                    self.connectionWeight = 0.0
 
             def calcValue(self, valueIn):
                 self.value = valueIn
@@ -42,18 +53,21 @@ class AI:
                     self.connection.calcValue(valueIn * self.connectionWeight)
 
         class OutputGene(Gene):
-            def __init__(self):
+            """def __init__(self):
                 super().__init__()
                 self.scalar = random.uniform(-1.0, 1.0)
-
-            def __init__(self, geneIn):
+            """
+            def __init__(self, copyGeneIn=None):
                 super().__init__()
-                self.scalar = geneIn.scalar
+                if copyGeneIn is not None:
+                    self.scalar = copyGeneIn.scalar
+                else:
+                    self.scalar = random.uniform(-1.0, 1.0)
 
             def calcValue(self, valueIn):
                 self.setValue(valueIn * self.scalar)
 
-        def __init__(self):
+        """def __init__(self):
             self.strategy = self.StrategyGene()
             self.turnLeft = self.OutputGene()
             self.turnRight = self.OutputGene()
@@ -68,13 +82,29 @@ class AI:
             self.yToEdge = self.InputGene(random.choice(self.outGenes))
             self.inGenes = list((self.unexploredSpaces, self.distanceInFront, self.xCoord, self.yCoord,
                                  self.xToEdge, self.yToEdge))
-
-        def __init__(self, parent1, parent2):
-            sequence1 = parent1.getSequence()
-            sequence2 = parent2.getSequence()
-            reverseOrder = random.choice([True, False])
-            split = random.randint(0, sequence1.length())
-            self.setFromSequence(self.mergeSequences(reverseOrder, sequence1, sequence2, split))
+        """
+        def __init__(self, parent1=None, parent2=None):
+            if parent1 is None or parent2 is None:
+                self.strategy = self.StrategyGene()
+                self.turnLeft = self.OutputGene()
+                self.turnRight = self.OutputGene()
+                self.moveForward = self.OutputGene()
+                self.moveBack = self.OutputGene()
+                self.outGenes = list((self.turnLeft, self.turnRight, self.moveForward, self.moveBack))
+                self.unexploredSpaces = self.InputGene(None, random.choice(self.outGenes))
+                self.distanceInFront = self.InputGene(None, random.choice(self.outGenes))
+                self.xCoord = self.InputGene(None, random.choice(self.outGenes))
+                self.yCoord = self.InputGene(None, random.choice(self.outGenes))
+                self.xToEdge = self.InputGene(None, random.choice(self.outGenes))
+                self.yToEdge = self.InputGene(None, random.choice(self.outGenes))
+                self.inGenes = list((self.unexploredSpaces, self.distanceInFront, self.xCoord, self.yCoord,
+                                     self.xToEdge, self.yToEdge))
+            else:
+                sequence1 = parent1.getSequence()
+                sequence2 = parent2.getSequence()
+                reverseOrder = random.choice([True, False])
+                split = random.randint(0, sequence1.length())
+                self.setFromSequence(self.mergeSequences(reverseOrder, sequence1, sequence2, split))
 
         def getSequence(self):
             """return tuple((self.outGenes + self.inGenes))"""
@@ -90,8 +120,8 @@ class AI:
                           self.unexploredSpaces, self.distanceInFront, self.xCoord, self.yCoord,\
                           self.xToEdge, self.yToEdge)"""
             outSequence = tuple((self.strategy, self.turnLeft, self.turnRight, self.moveForward, self.moveBack,
-                          self.unexploredSpaces, self.distanceInFront, self.xCoord, self.yCoord,
-                          self.xToEdge, self.yToEdge))
+                                self.unexploredSpaces, self.distanceInFront, self.xCoord, self.yCoord,
+                                self.xToEdge, self.yToEdge))
             return outSequence
 
         def setFromSequence(self, sequence):
@@ -132,11 +162,13 @@ class AI:
                     newSequence.append(sequence2[i])
             return newSequence
 
-    def __init__(self):
-        self.genome = AI.Genome()
-
-    def __init__(self, parent1, parent2):
-        self.genome = AI.Genome(parent1, parent2)
+    """def __init__(self):
+        self.genome = AI.Genome()"""
+    def __init__(self, parent1=None, parent2=None):
+        if (parent1 is None) or (parent2 is None):
+            self.genome = AI.Genome()
+        else:
+            self.genome = AI.Genome(parent1, parent2)
 
     def getNextMove(self):
         if self.genome.strategy == "spin and move":
