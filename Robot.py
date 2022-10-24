@@ -6,28 +6,6 @@ class Robot:
     facingMap = [(0, 1), (-1, 1), (-1, 0), (-1, -1), (0, -1), (1, -1), (1, 0), (1, 1)]
     charMap = [">", "7", "^", "`", "<", "L", "V", ","]      # TODO: find better diagonal characters
 
-    """# Default constructor:
-    def __init__(self):
-        self.position = (0, 0)
-        self.facing = (0, 1)
-        self.char = self.getChar()
-        self.field = None
-        self.collisions = 0
-        self.seesGoal = False
-        self.frontDistance = self.look(self.field)
-        self.AI = AI.AI()"""
-
-    """# Specific constructor with random AI:
-    def __init__(self, field, position, facing):
-        self.position = position
-        self.facing = facing
-        self.char = self.getChar()
-        self.field = field
-        self.collisions = 0
-        self.seesGoal = False
-        self.frontDistance = self.look(self.field)
-        self.AI = AI.AI()"""
-
     # Specific constructor with AI from parents:
     def __init__(self, field, position, facing, parent1=None, parent2=None):
         self.position = position
@@ -82,7 +60,7 @@ class Robot:
             currentPos = self.nextCoord(currentPos, self.facing)
         return distance
 
-    # Move robot one space in the direction it is facing; fails and increments collisions if space contains an obstacle:
+    # Move robot one space in the direction it is facing; fails and increments collisions if destination is invalid:
     def move(self):
         moveTarget = self.nextCoord(self.position, self.facing)
         if self.field.validCoord(moveTarget):

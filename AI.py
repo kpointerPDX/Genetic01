@@ -4,18 +4,18 @@ import random
 class AI:
     class Genome:
         class Gene:
+            # Prototype constructor for "Gene" (node in neural net graph structure):
             def __init__(self):
                 self.value = 0.0
 
+            # Stores fed value:
             def setValue(self, valueIn):
                 self.value = valueIn
 
         class StrategyGene(Gene):
-            strategyList = list(("random", "spin and move", "spiral", "grid"))
-            """def __init__(self):
-                super().__init__()
-                self.strategy = random.choice(self.strategyList)"""
+            strategyList = list(("random", "spin and move", "spiral", "grid"))  # List of general search strategies
 
+            # Constructor for "StrategyGene" (special node which stores general search strategy):
             def __init__(self, strategyGeneIn=None):
                 super().__init__()
                 if strategyGeneIn is None:
@@ -24,16 +24,7 @@ class AI:
                     self.strategy = strategyGeneIn.strategy
 
         class InputGene(Gene):
-            """def __init__(self):
-                super().__init__()
-                self.connection = None
-                self.connectionWeight = 0
-
-            def __init__(self, outputGeneIn):
-                super().__init__()
-                self.connection = outputGeneIn
-                self.connectionWeight = random.uniform(-1.0, 1.0)"""
-
+            # Constructor for "InputGene" (node which connects sensory inputs to outputs):
             def __init__(self, inputGeneIn=None, connectedGeneIn=None):
                 super().__init__()
                 if inputGeneIn is not None:
@@ -47,16 +38,14 @@ class AI:
                     self.connection = None
                     self.connectionWeight = 0.0
 
+            # Takes fed value, stores it, and passes weighted value to connected node:
             def calcValue(self, valueIn):
                 self.value = valueIn
                 if self.connection is not None:
                     self.connection.calcValue(valueIn * self.connectionWeight)
 
         class OutputGene(Gene):
-            """def __init__(self):
-                super().__init__()
-                self.scalar = random.uniform(-1.0, 1.0)
-            """
+            # Constructor for "OutputGene" (node which triggers action outputs):
             def __init__(self, copyGeneIn=None):
                 super().__init__()
                 if copyGeneIn is not None:
@@ -64,25 +53,11 @@ class AI:
                 else:
                     self.scalar = random.uniform(-1.0, 1.0)
 
+            # Takes value fed by connection, applies scalar, and stores:
             def calcValue(self, valueIn):
                 self.setValue(valueIn * self.scalar)
 
-        """def __init__(self):
-            self.strategy = self.StrategyGene()
-            self.turnLeft = self.OutputGene()
-            self.turnRight = self.OutputGene()
-            self.moveForward = self.OutputGene()
-            self.moveBack = self.OutputGene()
-            self.outGenes = list((self.turnLeft, self.turnRight, self.moveForward, self.moveBack))
-            self.unexploredSpaces = self.InputGene(random.choice(self.outGenes))
-            self.distanceInFront = self.InputGene(random.choice(self.outGenes))
-            self.xCoord = self.InputGene(random.choice(self.outGenes))
-            self.yCoord = self.InputGene(random.choice(self.outGenes))
-            self.xToEdge = self.InputGene(random.choice(self.outGenes))
-            self.yToEdge = self.InputGene(random.choice(self.outGenes))
-            self.inGenes = list((self.unexploredSpaces, self.distanceInFront, self.xCoord, self.yCoord,
-                                 self.xToEdge, self.yToEdge))
-        """
+        # Genome constructor (container for Gene graph; is sequenced for inheritance):
         def __init__(self, parent1=None, parent2=None):
             if parent1 is None or parent2 is None:
                 self.strategy = self.StrategyGene()
@@ -106,36 +81,15 @@ class AI:
                 split = random.randint(0, sequence1.length())
                 self.setFromSequence(self.mergeSequences(reverseOrder, sequence1, sequence2, split))
 
+        # Encodes Gene graph as a list to be split and reassembled between 2 parents to create new generation:
         def getSequence(self):
-            """return tuple((self.outGenes + self.inGenes))"""
-            """outSequence = list[self.Gene]
-            for i in self.inGenes:
-                outSequence.append(i)
-            for o in self.outGenes:
-                outSequence.append(o)
-            return outSequence"""
-            """return self.outGenes + self.inGenes"""
-            """outSequence = list[self.Gene]
-            outSequence.append(self.strategy, self.turnLeft, self.turnRight, self.moveForward, self.moveBack,\
-                          self.unexploredSpaces, self.distanceInFront, self.xCoord, self.yCoord,\
-                          self.xToEdge, self.yToEdge)"""
             outSequence = tuple((self.strategy, self.turnLeft, self.turnRight, self.moveForward, self.moveBack,
                                 self.unexploredSpaces, self.distanceInFront, self.xCoord, self.yCoord,
                                 self.xToEdge, self.yToEdge))
             return outSequence
 
+        # Sets Genome according to input sequence
         def setFromSequence(self, sequence):
-            """self.strategy = sequence[0][0]
-            self.turnLeft = sequence[0][1]
-            self.turnRight = sequence[0][2]
-            self.moveForward = sequence[0][3]
-            self.moveBack = sequence[0][4]
-            self.unexploredSpaces = sequence[1][0]
-            self.distanceInFront = sequence[1][1]
-            self.xCoord = sequence[1][2]
-            self.yCoord = sequence[1][3]
-            self.xToEdge = sequence[1][4]
-            self.yToEdge = sequence[1][5]"""
             self.strategy = self.StrategyGene(sequence[0])
             self.turnLeft = self.OutputGene(sequence[1])
             self.turnRight = self.OutputGene(sequence[2])
@@ -148,6 +102,7 @@ class AI:
             self.xToEdge = self.InputGene(sequence[9])
             self.yToEdge = self.InputGene(sequence[10])
 
+        # Creates new sequence from random combination of 2 parent sequences:
         def mergeSequences(self, reverseOrder, sequence1, sequence2, split):
             newSequence = list[self.Gene]
             if reverseOrder:
@@ -162,14 +117,14 @@ class AI:
                     newSequence.append(sequence2[i])
             return newSequence
 
-    """def __init__(self):
-        self.genome = AI.Genome()"""
+    # AI constructor (container class for genome and base logic):
     def __init__(self, parent1=None, parent2=None):
         if (parent1 is None) or (parent2 is None):
             self.genome = AI.Genome()
         else:
             self.genome = AI.Genome(parent1, parent2)
 
+    # Determines AI's next move by search strategy and inputs processed through genome:
     def getNextMove(self):
         if self.genome.strategy == "spin and move":
             pass    # TODO: implement logic for 'spin and move' strategy

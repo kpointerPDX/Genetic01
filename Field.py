@@ -3,14 +3,7 @@ import random
 
 
 class Field:
-    """def __init__(self):
-        self.dims = 5
-        self.cells = [['.']]
-        self.obstacles = 3
-        self.goalPosition = (self.dims-1, self.dims-1)
-        self.build()
-        self.unexplored = self.countUnexplored()
-    """
+    # Constructor for Field object (container for search area, goal, and obstacles):
     def __init__(self, dims=5, obstacles=3):
         self.dims = max(3, min(25, dims))
         self.cells = [['.']]
@@ -18,6 +11,7 @@ class Field:
         self.goalPosition = (0, 0)
         self.build()
 
+    # Generates field based on object parameters:
     def build(self):
         # Build empty field array:
         for i in range(0, self.dims):
@@ -40,7 +34,6 @@ class Field:
                 if self.cells[randR][randC] == '.':
                     neighbors = 0
                     r = randR - 1
-#                   c = randC - 1   # TODO: is this c declaration needed?
                     while neighbors < 2 and r <= randR + 1:
                         c = randC - 1
                         while neighbors < 2 and c <= randC + 1:
@@ -52,12 +45,14 @@ class Field:
                         validPick = True
             self.cells[randR][randC] = 'O'
 
+    # Returns contents of call at specified coordinates:
     def getCoord(self, coord):
         if coord[0] < 0 or coord[1] < 0 or coord[0] >= self.dims or coord[1] >= self.dims:
             return None
         else:
             return self.cells[coord[0]][coord[1]]
 
+    # Returns whether specified coordinate can be moved/seen through:
     def validCoord(self, coord):
         checkCoord = self.getCoord(coord)
         if checkCoord is None or checkCoord == "O":
@@ -65,9 +60,7 @@ class Field:
         else:
             return True
 
-    def setExplored(self, coord):
-        pass    # TODO: is setExplored still needed?
-
+    # Tallies and returns total number of unexplored spaces on the field:
     def countUnexplored(self):
         count = 0
         for i in range(0, self.dims):
@@ -75,10 +68,3 @@ class Field:
                 if self.cells[i][j] == ".":
                     count += 1
         return count
-
-#    def placeRobot(self, Robot, position):
-#        if position[0] < 0 or position[1] < 0 or position[0] >= self.dims or position[1] >= self.dims:
-#            print("Out of bounds robot placement!")
-#        else:
-#            robotChars = [">", "7", "^", "`", "<", "L", "V", ","]
-#            self.cells[position[0]][position[1]] = ">"

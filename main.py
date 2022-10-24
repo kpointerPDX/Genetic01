@@ -11,34 +11,12 @@ worldNumGenerations = 1
 
 
 class World:
-    # # Default constructor (single-robot, single-generation constructor, for debugging purposes):
-    # def __init__(self):
-    #    """self.field = None"""
-    #    self.robots = list(())
-    #    self.robots.append(Robot.Robot(Field.Field(worldDims, worldObstacles), worldStartPos, worldStartFacing))
-    #    self.trialTime = 0
-    #    self.trialRunning = True
-    #    self.numGenerations = 1
-    #
-    # # Single-robot, single-generation constructor (for debugging purposes):
-    # """def __init__(self, robotIn, fieldIn):"""
-    # def __init__(self, robotIn):
-    #    self.robots = list(())
-    #    self.robots.append(robotIn)
-    #    """self.field = fieldIn"""
-    #    self.currentRobot = 0
-    #    self.trialTime = 0
-    #    self.trialRunning = True
-    #    self.numGenerations = 1
-    #
-    # Robust, multi-robot, multi-generation constructor:
-    """def __init__(self, fieldIn, numRobotsIn, numTrialsIn):"""
+    # World (container for robots, trials, etc.) constructor:
     def __init__(self):
         self.robots = list(())
         for i in range(0, worldNumRobots):
             thisField = Field.Field(worldDims, worldObstacles)
             self.robots.append(Robot.Robot(thisField, worldStartPos, worldStartFacing))
-        """self.field = fieldIn"""
         self.currentRobot = 0
         self.trialTime = 0
         self.trialRunning = True
@@ -50,7 +28,6 @@ class World:
 
     # Prints currently active robot's current state to the screen
     def printWorld(self):
-        """pos = self.robot.position"""
         robotPos = self.robots[self.currentRobot].position
         for i in range(0, self.robots[self.currentRobot].field.dims):
             line = " "
@@ -64,10 +41,6 @@ class World:
 
 
 # Initialize world, field, and robot:
-"""playField = Field.Field(worldDims, worldObstacles)
-robit = Robot.Robot(playField, worldStartPos, worldStartFacing)
-theWorld = World(robit, playField)"""
-"""theWorld = World(playField, worldNumRobots)"""
 theWorld = World()
 
 theWorld.printWorld()
