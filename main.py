@@ -1,56 +1,74 @@
 import Robot
 import Field
 
-# Global static variables:
+# Global simulation variables:
 worldDims = 7
 worldObstacles = 5
 worldStartPos = (3, 0)
 worldStartFacing = (0, 1)
 worldNumRobots = 1
 worldNumGenerations = 1
+worldTrialTimeLimit = 1000
 
 
-class World:
-    # World (container for robots, trials, etc.) constructor:
+class World:                # Master superclass which contains all robots and manages simulations
     def __init__(self):
-        self.robots = list(())
-        for i in range(0, worldNumRobots):
-            thisField = Field.Field(worldDims, worldObstacles)
-            self.robots.append(Robot.Robot(thisField, worldStartPos, worldStartFacing))
-        self.currentRobot = 0
-        self.trialTime = 0
-        self.trialRunning = True
-        self.numGenerations = worldNumGenerations
-
-    # Calculates next time step for the world
-    def tick(self):
-        pass    # TODO: implement world.tick() function
+        self.generations = list[list[Robot.Robot]](())
+        self.fitnessLog = list[list[float]](())
+        for i in range(0, worldNumGenerations):
+            self.fitnessLog.append(list[float](()))
+            for j in range(0, worldNumRobots):
+                self.fitnessLog[i].append(0.0)
 
     # Prints currently active robot's current state to the screen
-    def printWorld(self):
-        robotPos = self.robots[self.currentRobot].position
-        for i in range(0, self.robots[self.currentRobot].field.dims):
+    def printWorld(self, currentGen, currentRobot):
+        robotPos = self.generations[currentGen][currentRobot].position
+        for i in range(0, self.generations[currentGen][currentRobot].field.dims):
             line = " "
-            for j in range(0, self.robots[self.currentRobot].field.dims):
+            for j in range(0, self.generations[currentGen][currentRobot].field.dims):
                 cell = (i, j)
                 if cell == robotPos:
-                    line += self.robots[self.currentRobot].char
+                    line += self.generations[currentGen][currentRobot].char
                 else:
-                    line += self.robots[self.currentRobot].field.cells[i][j]
+                    line += self.generations[currentGen][currentRobot].field.cells[i][j]
             print(line)
+
+    # Prints overall results of a given simulation
+    def printSimReport(self, time, gen, robot):
+        self.printWorld(gen, robot)
+        print("Time: ", time, "\t Collisions: ", self.generations[gen][robot].collisions)
+        print("Overall fitness score: ", self.fitnessLog[gen][robot])
+        print()
+
+    # Runs simulations for each robot in each generation,
+    def runSim(self):
+        for g in range(0, worldNumGenerations):
+            self.generations.append(list[Robot.Robot](()))
+            for r in range(0, worldNumRobots):
+                self.generations[g].append(Robot.Robot(Field.Field(worldDims, worldObstacles), worldStartPos, worldStartFacing))
+                while self.generations[g][r].seesGoal:
+                    del self.generations[g][r]
+                    self.generations[g].append(Robot.Robot(Field.Field(worldDims, worldObstacles), worldStartPos, worldStartFacing))
+                trialRunning = True
+                t = 0
+                while trialRunning and t < worldTrialTimeLimit:
+                    nextMove = self.generations[g][r].AI.getNextMove(self.generations[g][r])
+                    if nextMove == "turnLeft":
+                        self.generations[g][r].turnLeft(1)
+                    elif nextMove == "turnRight":
+                        self.generations[g][r].turnRight(1)
+                    elif nextMove == "moveForward":
+                        self.generations[g][r].move()
+                    elif nextMove == "moveBack":
+                        self.generations[g][r].reverse()
+                    else:
+                        print("ERROR: Invalid instruction received from AI, ", nextMove)
+                    if self.generations[g][r].seesGoal:
+                        trialRunning = False
+                self.fitnessLog[g][r] = self.generations[g][r].calculateFitness(t)
+                self.printSimReport(t, g, r)
 
 
 # Initialize world, field, and robot:
 theWorld = World()
-
-theWorld.printWorld()
-print("Unexplored spaces: ", theWorld.robots[0].field.countUnexplored())
-print()
-
-# SIM SCRIPT STARTS HERE:
-theWorld.robots[0].turnLeft(1)
-theWorld.robots[0].turnLeft(1)
-theWorld.robots[0].turnRight(3)
-theWorld.robots[0].turnRight(1)
-theWorld.printWorld()
-print("Unexplored spaces: ", theWorld.robots[0].field.countUnexplored())
+theWorld.runSim()
