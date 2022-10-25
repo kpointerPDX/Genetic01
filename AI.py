@@ -6,7 +6,7 @@ outputCount = 4                                                                 
 
 
 class AI:               # The class which acts as the "brain" for the robot, containing its neural network and genome
-    mutationChance = 100                                                                                                # 1/X chance of a mutation when reproducing
+    mutationChance = 1000                                                                                                # 1/X chance of a mutation when reproducing
     mutationFactor = 2.0                                                                                                # factor by which a value is mutated
 
     class AIInput:          # The "input node" class on the simple neural network used to determine the AI's next move
@@ -17,17 +17,17 @@ class AI:               # The class which acts as the "brain" for the robot, con
                 if inputPrototype is None:                                                                              # if no prototype was given, assign weight randomly:
                     self.connectionWeights.append(random.uniform(-10.0, 10.0))
                 else:                                                                                                   # if prototype was given, copy weight value:
-                    for j in inputPrototype.connectionWeights:
-                        self.connectionWeights.append(inputPrototype.connectionWeights[j])
-                self.rawOutputs.append(0.0)                                                                                # in either case, initialize raw outputs to 0
+                    self.connectionWeights.append(inputPrototype.connectionWeights[i])
+                self.rawOutputs.append(0.0)                                                                             # in either case, initialize raw outputs to 0
 
         def mutate(self):                       # Performs random mutation on input node
-            indexToMutate = random.randint(0, outputCount)
+            indexToMutate = random.randint(0, outputCount-1)
             valueToMutate = self.connectionWeights[indexToMutate]
+            mutator = AI.mutationFactor
             isDecrease = random.choice([True, False])
             if isDecrease:
-                AI.mutationFactor *= -1
-            self.connectionWeights[indexToMutate] += valueToMutate * AI.mutationFactor                                  # adds/subtracts multiple of connection weight
+                mutator *= -1
+            self.connectionWeights[indexToMutate] += valueToMutate * mutator                                            # adds/subtracts multiple of connection weight
 
         def feedInput(self, valueIn):           # Calculates raw output values based on fed input
             for i in range(0, len(self.connectionWeights)):
@@ -69,7 +69,7 @@ class AI:               # The class which acts as the "brain" for the robot, con
             normValue = 0.5 + math.tanh(self.value * self.bias) * 0.5                                                   # bias value adjusts "steepness" of tanh curve
             return normValue
 
-    def __init__(self, parent1=None, parent2=None):
+    def __init__(self, parent1AI=None, parent2AI=None):
         self.outputs = list[self.AIOutput](())                                                                          # list of output nodes, each with a bias scalar
         self.oDict = {                                                                                                  # translates text output names to correct list index
             "turnLeft": 0,
@@ -92,7 +92,7 @@ class AI:               # The class which acts as the "brain" for the robot, con
             "rFromEdge": 4,
             "cFromEdge": 5
         }
-        if parent1 is None or parent2 is None:                                                                          # if <2 parents, assign new random node objects
+        if parent1AI is None or parent2AI is None:                                                                          # if <2 parents, assign new random node objects
             for i in range(0, outputCount):
                 self.outputs.append(self.AIOutput())
             for i in range(0, inputCount):
@@ -103,20 +103,20 @@ class AI:               # The class which acts as the "brain" for the robot, con
             """ algorithm copies one side of the genome from parent 1, and the remainder from parent 2.
                 splitPoint: determines where in the genome the split between the two parents is.
                 reverseOrder: decides whether to begin with parent 1 or parent 2 before switching to the other at split"""
-            for i in range(0, outputCount):                                                                             # create combination of inputs from parents
+            for i in range(0, inputCount):                                                                              # create combination of inputs from parents
                 if (i <= splitPoint and not reverseOrder) or (i > splitPoint and reverseOrder):
-                    self.inputs.append(self.AIInput(parent1.inputs[i]))
+                    self.inputs.append(self.AIInput(parent1AI.inputs[i]))
                 else:
-                    self.inputs.append(self.AIInput(parent2.inputs[i]))
+                    self.inputs.append(self.AIInput(parent2AI.inputs[i]))
                 if random.randint(0, AI.mutationChance) == 0:                                                           # 1-in-mutationChance probability to mutate node
                     self.inputs[i].mutate()
             splitPoint = random.randint(0, outputCount)
             reverseOrder = random.choice([False, True])
-            for i in range(0, inputCount):                                                                              # repeat for outputs
+            for i in range(0, outputCount):                                                                             # repeat for outputs
                 if (i <= splitPoint and not reverseOrder) or (i > splitPoint and reverseOrder):
-                    self.outputs.append(self.AIOutput(parent1.outputs[i]))
+                    self.outputs.append(self.AIOutput(parent1AI.outputs[i]))
                 else:
-                    self.outputs.append(self.AIOutput(parent2.outputs[i]))
+                    self.outputs.append(self.AIOutput(parent2AI.outputs[i]))
                 if random.randint(0, AI.mutationChance) == 0:                                                           # 1-in-mutationChance probability to mutate node
                     self.outputs[i].mutate()
 

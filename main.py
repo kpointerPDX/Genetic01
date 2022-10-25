@@ -6,9 +6,10 @@ worldDims = 7
 worldObstacles = 5
 worldStartPos = (3, 0)
 worldStartFacing = (0, 1)
-worldNumRobots = 1
-worldNumGenerations = 1
-worldTrialTimeLimit = 1000
+worldNumRobots = 10
+worldNumGenerations = 1000
+worldTrialTimeLimit = 500
+worldDebug = False
 
 
 class World:                # Master superclass which contains all robots and manages simulations
@@ -40,15 +41,53 @@ class World:                # Master superclass which contains all robots and ma
         print("Overall fitness score: ", self.fitnessLog[gen][robot])
         print()
 
+    # Writes fitness log to text file
+    def writeLog(self):
+        f = open("simLog.txt", "a")
+        f.write("\n\n")
+        f.write("============\n")
+        f.write("  NEW LOG:\n")
+        f.write("============\n")
+        for g in range(0, len(self.fitnessLog)):
+            lineString = "gen " + str(g) + ":\n"
+            f.write(lineString)
+            lineString = ""
+            for r in range(3, len(self.fitnessLog[g])):
+                lineString += "\t" + str(self.fitnessLog[g][r]) + "\n"
+            lineString += "  1st: " + str(self.fitnessLog[g][1]) + "\n  2nd: " + str(self.fitnessLog[g][2]) + "\n"
+            lineString += "  Best: " + str(self.fitnessLog[g][0]) + "\n"
+            f.write(lineString)
+            f.write("\n")
+        f.write("\n")
+
     # Runs simulations for each robot in each generation,
     def runSim(self):
         for g in range(0, worldNumGenerations):
             self.generations.append(list[Robot.Robot](()))
+            lastGenWinner1 = 0                                                                                          # TODO: implement end-of-gen logging
+            lastGenWinner2 = 0
+            if g > 0:
+                bestFitness = 0.0
+                for r in range(0, worldNumRobots):
+                    if self.fitnessLog[g-1][r] >= bestFitness:
+                        lastGenWinner2 = lastGenWinner1
+                        bestFitness = self.fitnessLog[g - 1][r]
+                        lastGenWinner1 = r
+                print("gen ", g-1, " winner: ", bestFitness)
+                self.fitnessLog[g-1].insert(0, lastGenWinner2)
+                self.fitnessLog[g-1].insert(0, lastGenWinner1)
+                self.fitnessLog[g-1].insert(0, bestFitness)
             for r in range(0, worldNumRobots):
-                self.generations[g].append(Robot.Robot(Field.Field(worldDims, worldObstacles), worldStartPos, worldStartFacing))
+                if g == 0:
+                    self.generations[g].append(Robot.Robot(Field.Field(worldDims, worldObstacles), worldStartPos, worldStartFacing))
+                else:
+                    self.generations[g].append(Robot.Robot(Field.Field(worldDims, worldObstacles), worldStartPos, worldStartFacing, self.generations[g-1][lastGenWinner1], self.generations[g-1][lastGenWinner2]))
                 while self.generations[g][r].seesGoal:
                     del self.generations[g][r]
-                    self.generations[g].append(Robot.Robot(Field.Field(worldDims, worldObstacles), worldStartPos, worldStartFacing))
+                    if g == 0:
+                        self.generations[g].append(Robot.Robot(Field.Field(worldDims, worldObstacles), worldStartPos, worldStartFacing))
+                    else:
+                        self.generations[g].append(Robot.Robot(Field.Field(worldDims, worldObstacles), worldStartPos, worldStartFacing, self.generations[g - 1][lastGenWinner1], self.generations[g - 1][lastGenWinner2]))
                 trialRunning = True
                 t = 0
                 while trialRunning and t < worldTrialTimeLimit:
@@ -65,8 +104,12 @@ class World:                # Master superclass which contains all robots and ma
                         print("ERROR: Invalid instruction received from AI, ", nextMove)
                     if self.generations[g][r].seesGoal:
                         trialRunning = False
+                    else:
+                        t += 1
                 self.fitnessLog[g][r] = self.generations[g][r].calculateFitness(t)
-                self.printSimReport(t, g, r)
+                #self.printSimReport(t, g, r)
+        self.printWorld(worldNumGenerations-1, self.fitnessLog[g-2][1])
+        self.writeLog()
 
 
 # Initialize world, field, and robot:

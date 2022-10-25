@@ -5,8 +5,9 @@ class Robot:
     # Facings and display characters that correspond with each other:
     facingMap = [(0, 1), (-1, 1), (-1, 0), (-1, -1), (0, -1), (1, -1), (1, 0), (1, 1)]
     charMap = [">", "7", "^", "`", "<", "L", "V", ","]      # TODO: find better diagonal characters
-    collisionWeight = 10.0
+    collisionWeight = 1.0
     timeWeight = 1.0
+    unexploredWeight = 1.0
 
     # Specific constructor with AI from parents:
     def __init__(self, field, position, facing, parent1=None, parent2=None):
@@ -87,7 +88,7 @@ class Robot:
         if self.field.validCoord(moveTarget):
             self.position = moveTarget
         else:
-            print("COLLISION!")
+            #print("COLLISION!")
             self.collisions += 1
 
     # Move robot one space in the direction it is facing; fails and increments collisions if destination is invalid:
@@ -96,10 +97,14 @@ class Robot:
         if self.field.validCoord(moveTarget):
             self.position = moveTarget
         else:
-            print("COLLISION!")
+            #print("COLLISION!")
             self.collisions += 1
 
     # Calculates fitness value using provided trial time, then returns result
     def calculateFitness(self, trialTime):
-        self.fitness = 1 / (trialTime * self.timeWeight + self.collisions * self.collisionWeight)
+        denom = trialTime * self.timeWeight + self.collisions * self.collisionWeight + self.field.countUnexplored() * self.unexploredWeight
+        if denom > 0.0:
+            self.fitness = 1 / denom
+        else:
+            self.fitness = 0
         return self.fitness
