@@ -60,6 +60,15 @@ class Field:
         else:
             return True
 
+    # Tallies and returns total number of explored spaces on the field:
+    def countExplored(self):
+        count = 0
+        for i in range(0, self.dims):
+            for j in range(0, self.dims):
+                if self.cells[i][j] == "_":
+                    count += 1
+        return count
+
     # Tallies and returns total number of unexplored spaces on the field:
     def countUnexplored(self):
         count = 0
