@@ -2,19 +2,24 @@ import AI
 
 
 class Robot:
-    # Facings and display characters that correspond with each other:
+    # Facings and display characters that correspond with each other
     facingMap = [(0, 1), (-1, 1), (-1, 0), (-1, -1), (0, -1), (1, -1), (1, 0), (1, 1)]
     charMap = [">", "7", "^", "`", "<", "L", "V", ","]      # TODO: find better diagonal characters
-    collisionWeight = 1.0
-    timeWeight = 1.0
-    unexploredWeight = 1.0
+    collisionWeight = 15.0
+    timeWeight = 4.0
+    unexploredWeight = 0.1
+    movedWeight = 1.0
+    turnedWeight = 0.25
 
-    # Specific constructor with AI from parents:
+    # Specific constructor with AI from parents
     def __init__(self, field, position, facing, parent1=None, parent2=None):
         self.position = position
         self.facing = facing
         self.char = self.getChar()
         self.field = field
+        self.moved = 0
+        self.turned = 0
+        self.path = ""
         self.collisions = 0
         self.seesGoal = False
         self.frontDistance = self.look()
@@ -24,28 +29,30 @@ class Robot:
         else:
             self.AI = AI.AI(parent1.AI, parent2.AI)
 
-    # turns robot left by multiples of 45 degrees:
+    # turns robot left by multiples of 45 degrees
     def turnLeft(self, turnAngle):
         turnAngle = turnAngle % 8
         currentAngle = self.facingMap.index(self.facing)
         self.facing = self.facingMap[(currentAngle + turnAngle) % 8]
         self.char = self.getChar()
         self.frontDistance = self.look()
+        self.turned += turnAngle
 
-    # turns robot right by multiples of 45 degrees:
+    # turns robot right by multiples of 45 degrees
     def turnRight(self, turnAngle):
         turnAngle = turnAngle % 8
         currentAngle = self.facingMap.index(self.facing)
         self.facing = self.facingMap[(currentAngle - turnAngle) % 8]
         self.char = self.getChar()
         self.frontDistance = self.look()
+        self.turned += turnAngle
 
-    # Returns robot's current display character, depending on the direction it faces:
+    # Returns robot's current display character, depending on the direction it faces
     def getChar(self):
         currentFacing = self.facingMap.index(self.facing)
         return self.charMap[currentFacing]
 
-    # Returns the adjacent coordinates in the specified direction from a specified coordinate:
+    # Returns the adjacent coordinates in the specified direction from a specified coordinate
     def nextCoord(self, current, facing):
         destination = (current[0] + facing[0], current[1] + facing[1])
         return destination
@@ -68,7 +75,7 @@ class Robot:
         else:
             return cols - 1 - currentCol
 
-    # Check spaces in a line "in front" of robot until finding an obstacle; returns distance to obstacle:
+    # Check spaces in a line "in front" of robot until finding an obstacle; returns distance to obstacle
     def look(self):
         distance = 0
         self.seesGoal = False                                               # updates robot's seesGoal state
@@ -82,20 +89,22 @@ class Robot:
             currentPos = self.nextCoord(currentPos, self.facing)
         return distance
 
-    # Move robot one space in the direction it is facing; fails and increments collisions if destination is invalid:
+    # Move robot one space in the direction it is facing; fails and increments collisions if destination is invalid
     def move(self):
         moveTarget = self.nextCoord(self.position, self.facing)
         if self.field.validCoord(moveTarget):
             self.position = moveTarget
+            self.moved += 1
         else:
             #print("COLLISION!")
             self.collisions += 1
 
-    # Move robot one space in the direction it is facing; fails and increments collisions if destination is invalid:
+    # Move robot one space in the direction it is facing; fails and increments collisions if destination is invalid
     def reverse(self):
         moveTarget = self.nextCoord(self.position, (self.facing[0]*-1, self.facing[1]*-1))
         if self.field.validCoord(moveTarget):
             self.position = moveTarget
+            self.moved += 1
         else:
             #print("COLLISION!")
             self.collisions += 1
@@ -104,7 +113,7 @@ class Robot:
     def calculateFitness(self, trialTime):
         denom = trialTime * self.timeWeight + self.collisions * self.collisionWeight + self.field.countUnexplored() * self.unexploredWeight
         if denom > 0.0:
-            self.fitness = 1 / denom
+            self.fitness = (self.moved * self.movedWeight + self.turned * self.turnedWeight) * 1.0 / denom
         else:
-            self.fitness = 0
+            self.fitness = 0.0
         return self.fitness

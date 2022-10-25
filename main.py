@@ -7,8 +7,8 @@ worldObstacles = 5
 worldStartPos = (3, 0)
 worldStartFacing = (0, 1)
 worldNumRobots = 10
-worldNumGenerations = 1000
-worldTrialTimeLimit = 500
+worldNumGenerations = 250
+worldTrialTimeLimit = 200
 worldDebug = False
 
 
@@ -94,12 +94,16 @@ class World:                # Master superclass which contains all robots and ma
                     nextMove = self.generations[g][r].AI.getNextMove(self.generations[g][r])
                     if nextMove == "turnLeft":
                         self.generations[g][r].turnLeft(1)
+                        #self.generations[g][r].path += "L"
                     elif nextMove == "turnRight":
                         self.generations[g][r].turnRight(1)
+                        #self.generations[g][r].path += "R"
                     elif nextMove == "moveForward":
                         self.generations[g][r].move()
+                        #self.generations[g][r].path += "F"
                     elif nextMove == "moveBack":
                         self.generations[g][r].reverse()
+                        #self.generations[g][r].path += "B"
                     else:
                         print("ERROR: Invalid instruction received from AI, ", nextMove)
                     if self.generations[g][r].seesGoal:
@@ -107,6 +111,7 @@ class World:                # Master superclass which contains all robots and ma
                     else:
                         t += 1
                 self.fitnessLog[g][r] = self.generations[g][r].calculateFitness(t)
+                #print(self.generations[g][r].path)
                 #self.printSimReport(t, g, r)
         self.printWorld(worldNumGenerations-1, self.fitnessLog[g-2][1])
         self.writeLog()

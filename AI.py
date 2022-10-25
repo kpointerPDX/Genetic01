@@ -15,7 +15,8 @@ class AI:               # The class which acts as the "brain" for the robot, con
             self.rawOutputs = list[float](())
             for i in range(0, outputCount):
                 if inputPrototype is None:                                                                              # if no prototype was given, assign weight randomly:
-                    self.connectionWeights.append(random.uniform(-10.0, 10.0))
+                    #self.connectionWeights.append(random.uniform(-10.0, 10.0))
+                    self.connectionWeights.append(random.uniform(-1.0, 1.0))
                 else:                                                                                                   # if prototype was given, copy weight value:
                     self.connectionWeights.append(inputPrototype.connectionWeights[i])
                 self.rawOutputs.append(0.0)                                                                             # in either case, initialize raw outputs to 0
@@ -43,18 +44,20 @@ class AI:               # The class which acts as the "brain" for the robot, con
     class AIOutput:         # The "output node" class on the AI's neural network; collects and normalizes output values
         def __init__(self, outputPrototype=None):
             self.value = 0.0
-            if outputPrototype is None:                                                                                 # if no prototype, set bias with minor initial randomness
+            self.bias = 1.0
+            """if outputPrototype is None:                                                                                 # if no prototype, set bias with minor initial randomness
                 self.bias = random.uniform(0.75, 1.25)
             else:                                                                                                       # otherwise, copy value from prototype
-                self.bias = outputPrototype.bias
+                self.bias = outputPrototype.bias"""
 
         def mutate(self):               # Performs random mutation on output
-            multiplyVsDivide = random.choice([True, False])
+            pass
+            """multiplyVsDivide = random.choice([True, False])
             if multiplyVsDivide:
                 self.bias += (2.0 - self.bias) / AI.mutationFactor                                                      # increase by 1/mutationFactor of difference from 2
             else:
                 self.bias -= self.bias / AI.mutationFactor                                                              # decrease by value/mutationFactor
-            # note "self-correcting" mutation algorithm: larger changes toward middle when value is near the extremes
+            # note "self-correcting" mutation algorithm: larger changes toward middle when value is near the extremes"""
 
         def resetOutputValue(self):     # Clears previously held output value
             self.value = 0.0
@@ -66,7 +69,8 @@ class AI:               # The class which acts as the "brain" for the robot, con
             return self.value
 
         def getNormalizedValue(self):   # Returns output value, normalized to between 0 and 1
-            normValue = 0.5 + math.tanh(self.value * self.bias) * 0.5                                                   # bias value adjusts "steepness" of tanh curve
+            #normValue = 0.5 + math.tanh(self.value * self.bias) * 0.5                                                   # bias value adjusts "steepness" of tanh curve
+            normValue = 0.5 + math.tanh(self.value * 0.01) * 0.5
             return normValue
 
     def __init__(self, parent1AI=None, parent2AI=None):
@@ -133,9 +137,12 @@ class AI:               # The class which acts as the "brain" for the robot, con
         self.inputs[self.iDict["cCoord"]].feedInput(robotIn.position[1])
         self.inputs[self.iDict["rFromEdge"]].feedInput(robotIn.findRFromEdge())
         self.inputs[self.iDict["cFromEdge"]].feedInput(robotIn.findCFromEdge())
+        #debugString = "  "
         for o in range(0, outputCount):
             for i in range(0, inputCount):
                 self.outputs[o].addValue(self.inputs[i].rawOutputs[o])
+            #debugString += "\t" + str(self.outputs[o].getNormalizedValue())
+        #print(debugString)
 
     # Determines AI's next move by input values processed through neural network
     def getNextMove(self, robotIn):
