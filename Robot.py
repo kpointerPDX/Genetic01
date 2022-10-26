@@ -12,17 +12,12 @@ class Robot:
         self.facing = facing
         self.char = self.getChar()
         self.field = Field.Field(fieldDims, fieldObstacles)
-        self.moved = 0
-        self.turned = 0
-        #self.path = ""
-        self.collisions = 0
         self.seesGoal = False
-        self.timeToGoal = 0
         self.exploredLast = 0
         self.explored = 0
         self.newlyExplored = 0
         self.frontDistance = self.look()
-        #self.fitness = 0.0
+        self.trialNum = 0
 
     # turns robot left by multiples of 45 degrees
     def turnLeft(self, turnAngle):
@@ -31,7 +26,6 @@ class Robot:
         self.facing = self.facingMap[(currentAngle + turnAngle) % 8]
         self.char = self.getChar()
         self.frontDistance = self.look()
-        self.turned += turnAngle
 
     # turns robot right by multiples of 45 degrees
     def turnRight(self, turnAngle):
@@ -40,7 +34,6 @@ class Robot:
         self.facing = self.facingMap[(currentAngle - turnAngle) % 8]
         self.char = self.getChar()
         self.frontDistance = self.look()
-        self.turned += turnAngle
 
     # Returns robot's current display character, depending on the direction it faces
     def getChar(self):
@@ -94,7 +87,6 @@ class Robot:
             self.position = moveTarget
             return True
         else:
-            #print("COLLISION!")
             return False
 
     # Move robot one space in the direction it is facing; fails and increments collisions if destination is invalid
@@ -104,5 +96,4 @@ class Robot:
             self.position = moveTarget
             return True
         else:
-            #print("COLLISION!")
             return False
