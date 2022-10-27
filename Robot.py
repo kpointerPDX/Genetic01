@@ -4,19 +4,20 @@ import Field
 class Robot:
     # Facings and display characters that correspond with each other
     facingMap = [(0, 1), (-1, 1), (-1, 0), (-1, -1), (0, -1), (1, -1), (1, 0), (1, 1)]
-    charMap = [">", "7", "^", "`", "<", "L", "V", ","]      # TODO: find better diagonal characters
+    charMap = [">", "┓", "^", "┏", "<", "┗", "v", "┛"]
 
     # Specific constructor with AI from parents
     def __init__(self, fieldDims, fieldObstacles, position, facing):
         self.position = position
         self.facing = facing
         self.char = self.getChar()
-        self.field = Field.Field(fieldDims, fieldObstacles)
-        self.seesGoal = False
         self.exploredLast = 0
         self.explored = 0
         self.newlyExplored = 0
-        self.frontDistance = self.look()
+        self.seesGoal = True
+        while self.seesGoal:
+            self.field = Field.Field(fieldDims, fieldObstacles)
+            self.frontDistance = self.look()
         self.trialNum = 0
 
     # turns robot left by multiples of 45 degrees
@@ -63,14 +64,29 @@ class Robot:
         else:
             return cols - 1 - currentCol
 
+    # finds percentage of adjacent explorable spaces that are explored
+    def getImmediateExplorable(self):
+        explorable = 0.0
+        explored = 0.0
+        for f in self.facingMap:
+            checkPos = self.nextCoord(self.position, f)
+            if self.field.validCoord(checkPos):
+                contents = self.field.cells[checkPos[0]][checkPos[1]]
+                if contents == "_":
+                    explored += 1.0
+                    explorable += 1.0
+                elif contents == ".":
+                    explorable += 1.0
+        return float(float(explored)/float(explorable))
+
     # Check spaces in a line "in front" of robot until finding an obstacle; returns distance to obstacle
     def look(self):
         distance = 0
-        self.seesGoal = False                                               # updates robot's seesGoal state
+        self.seesGoal = False                                                                                           # updates robot's seesGoal state
         currentPos = self.position
         while self.field.validCoord(currentPos):
             if self.field.getCoord((currentPos[0], currentPos[1])) == "X":
-                self.seesGoal = True                                        # sets seesGoal to True if seen
+                self.seesGoal = True                                                                                    # sets seesGoal to True if seen
             else:
                 self.field.cells[currentPos[0]][currentPos[1]] = "_"
             distance += 1
@@ -97,3 +113,15 @@ class Robot:
             return True
         else:
             return False
+
+    # Prints the current state of the robot's field:
+    def print(self):
+        for i in range(0, self.field.dims):
+            line = " "
+            for j in range(0, self.field.dims):
+                cell = (i, j)
+                if cell == self.position:
+                    line += self.char
+                else:
+                    line += self.field.cells[i][j]
+            print(line)

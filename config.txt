@@ -1,14 +1,15 @@
 [NEAT]
 fitness_criterion     = max
-fitness_threshold     = 1000
+fitness_threshold     = 10000
 pop_size              = 20
 reset_on_extinction   = False
 
 [DefaultGenome]
 # node activation options
-activation_default      = softplus
-activation_mutate_rate  = 0.001
-activation_options      = tanh
+# OUTPUT = activation(BIAS + (RESPONSE * aggregation(INPUTS)))
+activation_default      = identity
+activation_mutate_rate  = 0.005
+activation_options      = clamped cube identity sigmoid softplus tanh
 
 # node aggregation options
 aggregation_default     = sum
@@ -45,8 +46,8 @@ node_delete_prob        = 0.0
 
 # network parameters
 num_hidden              = 0
-num_inputs              = 7
-num_outputs             = 4
+num_inputs              = 6
+num_outputs             = 3
 
 # node response options
 response_init_mean      = 1.0
@@ -60,8 +61,8 @@ response_replace_rate   = 0.0
 # connection weight options
 weight_init_mean        = 0.0
 weight_init_stdev       = 1.0
-weight_max_value        = 10
-weight_min_value        = -10
+weight_max_value        = 30
+weight_min_value        = -30
 weight_mutate_power     = 0.8
 weight_mutate_rate      = 0.5
 weight_replace_rate     = 0.01
@@ -71,7 +72,7 @@ compatibility_threshold = 3.0
 
 [DefaultStagnation]
 species_fitness_func = max
-max_stagnation       = 20
+max_stagnation       = 100
 species_elitism      = 2
 
 [DefaultReproduction]
