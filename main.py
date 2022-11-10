@@ -6,19 +6,20 @@ import pickle
 
 # Global simulation variables:
 DEBUG_OUTPUT = False
+STATS_REPORTER = True
 worldDims = 7
-worldObstacles = 8
+worldObstacles = 4
 worldStartPos = (3, 0)
 worldStartFacing = (0, 1)
 worldTimeLimit = 100
-worldNumGenerations = 100
+worldNumGenerations = 10
 worldTrialsPerGen = 10
 worldConfirmSims = 3
 # Global fitness function weights:
 fitnessWeight_Explored = 0.5
 fitnessWeight_Move = 0.0
 fitnessWeight_Turn = 0.0
-fitnessWeight_Collide = -1.5
+fitnessWeight_Collide = -2.0
 fitnessWeight_TimeFactor = 0.5
 
 
@@ -43,12 +44,13 @@ def evalGenomes(genomes, configIn):
         simRunning = True
         t = 0
         while simRunning:
+            #print(str(len(robots)))
             if len(robots) == 0 or t >= worldTimeLimit:
                 simRunning = False
             for i, thisRobot in enumerate(robots):
                 if not thisRobot.seesGoal:
                     # NOTE: adding/removing inputs requires adjusting 'num_inputs' value in config.txt
-                    inputs = (thisRobot.field.countUnexplored(),                                                        # values fed into input nodes on the neural net
+                    inputs = (#thisRobot.field.countUnexplored(),                                                        # values fed into input nodes on the neural net
                               thisRobot.getImmediateExplorable(),
                               thisRobot.frontDistance,
                               #thisRobot.position[0],
@@ -96,7 +98,7 @@ def testGenome(testNet):
         simRunning = True
         t = 0
         while simRunning:
-            inputs = (testRobot.field.countUnexplored(),
+            inputs = (#testRobot.field.countUnexplored(),
                       testRobot.getImmediateExplorable(),
                       testRobot.frontDistance,
                       #testRobot.position[0],
@@ -144,6 +146,10 @@ def testGenome(testNet):
 # Setup for training the NEAT algorithm
 def runNEAT(runConfigIn):
     pop = neat.Population(runConfigIn)                                                                                  # create genome population from config
+    if STATS_REPORTER:
+        pop.add_reporter(neat.StdOutReporter(True))                                                                         # creates object which displays data for each gen
+        stats = neat.StatisticsReporter()
+        pop.add_reporter(stats)
     winner = pop.run(evalGenomes, worldNumGenerations)                                                                  # return fittest genome after specified # of generations
     with open("best.pickle", "wb") as f:                                                                                # write genome object using pickle subsystem
         pickle.dump(winner, f)

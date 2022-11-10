@@ -1,7 +1,7 @@
 [NEAT]
 fitness_criterion     = max
 fitness_threshold     = 10000
-pop_size              = 20
+pop_size              = 100
 reset_on_extinction   = False
 
 [DefaultGenome]
@@ -9,7 +9,7 @@ reset_on_extinction   = False
 # OUTPUT = activation(BIAS + (RESPONSE * aggregation(INPUTS)))
 activation_default      = identity
 activation_mutate_rate  = 0.005
-activation_options      = clamped cube identity sigmoid softplus tanh
+activation_options      = cube identity tanh
 
 # node aggregation options
 aggregation_default     = sum
@@ -19,8 +19,8 @@ aggregation_options     = sum
 # node bias options
 bias_init_mean          = 0.0
 bias_init_stdev         = 1.0
-bias_max_value          = 30.0
-bias_min_value          = -30.0
+bias_max_value          = 10.0
+bias_min_value          = -10.0
 bias_mutate_power       = 0.5
 bias_mutate_rate        = 0.7
 bias_replace_rate       = 0.1
@@ -46,16 +46,16 @@ node_delete_prob        = 0.0
 
 # network parameters
 num_hidden              = 0
-num_inputs              = 6
+num_inputs              = 5
 num_outputs             = 3
 
 # node response options
 response_init_mean      = 1.0
-response_init_stdev     = 0.0
-response_max_value      = 30.0
-response_min_value      = -30.0
-response_mutate_power   = 0.0
-response_mutate_rate    = 0.0
+response_init_stdev     = 0.25
+response_max_value      = 10.0
+response_min_value      = -10.0
+response_mutate_power   = 0.1
+response_mutate_rate    = 0.01
 response_replace_rate   = 0.0
 
 # connection weight options
@@ -64,7 +64,7 @@ weight_init_stdev       = 1.0
 weight_max_value        = 30
 weight_min_value        = -30
 weight_mutate_power     = 0.8
-weight_mutate_rate      = 0.5
+weight_mutate_rate      = 0.25
 weight_replace_rate     = 0.01
 
 [DefaultSpeciesSet]

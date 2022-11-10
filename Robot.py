@@ -19,6 +19,7 @@ class Robot:
             self.field = Field.Field(fieldDims, fieldObstacles)
             self.frontDistance = self.look()
         self.trialNum = 0
+        self.trialTime = 0
 
     # turns robot left by multiples of 45 degrees
     def turnLeft(self, turnAngle):
