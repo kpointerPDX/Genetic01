@@ -9,10 +9,14 @@ class Field:
         self.cells = [['.']]
         self.obstacles = max(0, min(obstacles, max(1, int(floor(((dims-2)**2)/2)))))
         self.goalPosition = (0, 0)
-        self.build()
+        #self.buildRandom()
+        # trying alternate, static Fields
+        #self.buildStatic_Wall()
+        #self.buildStatic_Shield()
+        self.buildStatic_Forest()
 
     # Generates field based on object parameters:
-    def build(self):
+    def buildRandom(self):
         # Build empty field array:
         for i in range(0, self.dims):
             self.cells.append(['.'])
@@ -44,6 +48,63 @@ class Field:
                     if neighbors < 2:
                         validPick = True
             self.cells[randR][randC] = 'O'
+
+    # Generates field based on preset configuration:
+    def buildStatic_Wall(self):
+        # Setup simple field with wall:
+        self.cells.clear()
+        self.cells.append(['.', '.', '.', '.', '.', '.', '.'])
+        self.cells.append(['.', '.', '.', '.', '.', '.', '.'])
+        self.cells.append(['.', '.', '.', 'O', '.', '.', '.'])
+        self.cells.append(['.', '.', '.', 'O', '.', '.', '.'])
+        self.cells.append(['.', '.', '.', 'O', '.', '.', '.'])
+        self.cells.append(['.', '.', '.', '.', '.', '.', '.'])
+        self.cells.append(['.', '.', '.', '.', '.', '.', '.'])
+        self.obstacles = 3
+        self.dims = 7
+
+        # Place goal behind wall:
+        self.goalPosition = (3, 4)
+        self.cells[self.goalPosition[0]][self.goalPosition[1]] = "X"
+
+    # Generates field based on preset configuration:
+    def buildStatic_Shield(self):
+        # Setup simple field with wall:
+        self.cells.clear()
+        self.cells.append(['.', '.', '.', '.', '.', '.', '.'])
+        self.cells.append(['.', '.', '.', '.', '.', '.', '.'])
+        self.cells.append(['.', '.', '.', '.', 'O', '.', '.'])
+        self.cells.append(['.', '.', '.', 'O', '.', '.', '.'])
+        self.cells.append(['.', '.', '.', '.', 'O', '.', '.'])
+        self.cells.append(['.', '.', '.', '.', '.', '.', '.'])
+        self.cells.append(['.', '.', '.', '.', '.', '.', '.'])
+        self.obstacles = 5
+        self.dims = 7
+
+        # Place goal behind wall:
+        self.goalPosition = (3, 4)
+        self.cells[self.goalPosition[0]][self.goalPosition[1]] = "X"
+
+    # Generates field based on preset configuration:
+    def buildStatic_Forest(self):
+        # Setup simple field with wall:
+        self.cells.clear()
+        self.cells.append(['.', '.', '.', '.', '.', '.', '.'])
+        self.cells.append(['.', '.', '.', 'O', '.', '.', '.'])
+        self.cells.append(['.', '.', 'O', '.', 'O', '.', '.'])
+        self.cells.append(['.', 'O', '.', 'O', '.', 'O', '.'])
+        self.cells.append(['.', '.', 'O', '.', 'O', '.', '.'])
+        self.cells.append(['.', '.', '.', 'O', '.', '.', '.'])
+        self.cells.append(['.', '.', '.', '.', '.', '.', '.'])
+        self.obstacles = 9
+        self.dims = 7
+
+        # Place goal in forest somewhere:
+        if random.randint(0, 1):
+            self.goalPosition = (2, 3)
+        else:
+            self.goalPosition = (4, 3)
+        self.cells[self.goalPosition[0]][self.goalPosition[1]] = "X"
 
     # Returns contents of call at specified coordinates:
     def getCoord(self, coord):

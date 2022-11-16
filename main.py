@@ -12,15 +12,15 @@ worldObstacles = 4
 worldStartPos = (3, 0)
 worldStartFacing = (0, 1)
 worldTimeLimit = 100
-worldNumGenerations = 10
-worldTrialsPerGen = 10
+worldNumGenerations = 100
+worldTrialsPerGen = 1
 worldConfirmSims = 3
 # Global fitness function weights:
-fitnessWeight_Explored = 0.5
+fitnessWeight_Explored = 0.0
 fitnessWeight_Move = 0.0
 fitnessWeight_Turn = 0.0
 fitnessWeight_Collide = -2.0
-fitnessWeight_TimeFactor = 0.5
+fitnessWeight_TimeFactor = 2.0
 
 
 def remove(index, rs, ns, gs):
@@ -53,10 +53,10 @@ def evalGenomes(genomes, configIn):
                     inputs = (#thisRobot.field.countUnexplored(),                                                        # values fed into input nodes on the neural net
                               thisRobot.getImmediateExplorable(),
                               thisRobot.frontDistance,
-                              #thisRobot.position[0],
-                              #thisRobot.position[1],
-                              thisRobot.findCFromEdge(),
-                              thisRobot.findRFromEdge(),
+                              thisRobot.position[0],
+                              thisRobot.position[1],
+                              #thisRobot.findCFromEdge(),
+                              #thisRobot.findRFromEdge(),
                               t)
                     output = nets[i].activate(inputs)                                                                   # output # selected by the network, based on inputs
                     if DEBUG_OUTPUT:                                                                                    # print raw input/output values if flag is True
@@ -101,10 +101,10 @@ def testGenome(testNet):
             inputs = (#testRobot.field.countUnexplored(),
                       testRobot.getImmediateExplorable(),
                       testRobot.frontDistance,
-                      #testRobot.position[0],
-                      #testRobot.position[1],
-                      testRobot.findCFromEdge(),
-                      testRobot.findRFromEdge(),
+                      testRobot.position[0],
+                      testRobot.position[1],
+                      #testRobot.findCFromEdge(),
+                      #testRobot.findRFromEdge(),
                       t)
             output = testNet.activate(inputs)
             decision = output.index(max(output))
@@ -117,7 +117,7 @@ def testGenome(testNet):
                 if not testRobot.move():
                     collision = True
             elif decision == 3:
-                if not testRobot.reverse():                                                                             # NOTE: REVERSE OUTPUT CURRENTLY DISABLED IN CONFIG
+                if not testRobot.reverse():                                                                             # NOTE: REVERSE OUTPUT NODE CURRENTLY DISABLED IN CONFIG
                     collision = True
             else:
                 print("ERROR: Invalid instruction received from neural net, ", decision)
